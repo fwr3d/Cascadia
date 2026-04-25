@@ -5,7 +5,7 @@ import './globals.css'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'Cascadia — US Tsunami Simulator',
+  title: 'Cascadia - US Tsunami Simulator',
   description: 'Real-time Pacific tsunami wave simulator',
 }
 
