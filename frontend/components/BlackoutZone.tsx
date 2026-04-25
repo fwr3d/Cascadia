@@ -1,6 +1,6 @@
 'use client'
 
-import { Source, Layer } from 'react-map-gl/mapbox'
+import { Source, Layer } from 'react-map-gl'
 import { circleGeoJSON } from '@/lib/geo'
 
 interface Props {

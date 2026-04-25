@@ -7,7 +7,7 @@ import Map, {
   Marker,
   type MapMouseEvent,
   type MapRef,
-} from 'react-map-gl/mapbox'
+} from 'react-map-gl'
 import 'mapbox-gl/dist/mapbox-gl.css'
 import type { WaveRing, CoastalInundation } from '@/lib/types'
 import { circleGeoJSON } from '@/lib/geo'
