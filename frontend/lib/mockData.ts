@@ -16,4 +16,5 @@ export const MOCK_RESPONSE: SimulateResponse = {
     { radiusKm: 806,  etaMinutes: 60, affectedCounties: [] },
   ],
   infrastructureAtRisk: [],
+  coastalInundation: [],
 }

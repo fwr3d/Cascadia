@@ -76,8 +76,9 @@ export default function MapView({
   }, [epicenter])
 
   function handleMapLoad() {
-    const map = mapRef.current?.getMap()
-    if (!map) return
+    const mapInstance = mapRef.current?.getMap()
+    if (!mapInstance) return
+    const map = mapInstance
     // Enable 3-D terrain — required for queryTerrainElevation to return real values
     map.setTerrain({ source: 'mapbox-dem', exaggeration: 1.2 })
     setMapReady(true)
@@ -100,8 +101,8 @@ export default function MapView({
 
         for (const d of SAMPLE_DISTANCES_KM) {
           const [lng, lat] = destinationPoint(zone.lat, zone.lon, bearing, d)
-          const elev = map.queryTerrainElevation([lng, lat], { exaggerated: false })
-          if (elev === null) {
+          const elev = map!.queryTerrainElevation([lng, lat], { exaggerated: false })
+          if (elev == null) {
             // Tile not loaded — keep physics fallback for this zone
             break
           }
@@ -120,12 +121,12 @@ export default function MapView({
       setTerrainInundation(updated)
     }
 
-    if (map.areTilesLoaded()) {
+    if (map!.areTilesLoaded()) {
       sample()
     } else {
-      const onIdle = () => { sample(); map.off('idle', onIdle) }
-      map.on('idle', onIdle)
-      return () => { map.off('idle', onIdle) }
+      const onIdle = () => { sample(); map!.off('idle', onIdle) }
+      map!.on('idle', onIdle)
+      return () => { map!.off('idle', onIdle) }
     }
   }, [coastalInundation, mapReady])
 

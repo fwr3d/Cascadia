@@ -1,0 +1,12 @@
+C:\Users\fedeb\projects\cascadia\Cascadia.Api\.deploy-check\Cascadia.Api.exe
+C:\Users\fedeb\projects\cascadia\Cascadia.Api\.deploy-check\appsettings.Development.json
+C:\Users\fedeb\projects\cascadia\Cascadia.Api\.deploy-check\appsettings.json
+C:\Users\fedeb\projects\cascadia\Cascadia.Api\.deploy-check\Data\hospitals.json
+C:\Users\fedeb\projects\cascadia\Cascadia.Api\.deploy-check\Data\ports.json
+C:\Users\fedeb\projects\cascadia\Cascadia.Api\.deploy-check\Data\power-plants.json
+C:\Users\fedeb\projects\cascadia\Cascadia.Api\.deploy-check\Cascadia.Api.dll
+C:\Users\fedeb\projects\cascadia\Cascadia.Api\.deploy-check\Cascadia.Api.deps.json
+C:\Users\fedeb\projects\cascadia\Cascadia.Api\.deploy-check\Cascadia.Api.runtimeconfig.json
+C:\Users\fedeb\projects\cascadia\Cascadia.Api\.deploy-check\Cascadia.Api.pdb
+C:\Users\fedeb\projects\cascadia\Cascadia.Api\.deploy-check\Microsoft.AspNetCore.OpenApi.dll
+C:\Users\fedeb\projects\cascadia\Cascadia.Api\.deploy-check\Microsoft.OpenApi.dll
