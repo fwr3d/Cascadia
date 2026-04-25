@@ -1,0 +1,58 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg-deep: #0a1628;
+  --bg-panel: #0d1f3c;
+  --border-subtle: rgba(100, 116, 139, 0.25);
+}
+
+body {
+  background-color: var(--bg-deep);
+  color: #e2e8f0;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translate3d(0, 0, 0) rotate(0deg); }
+  10%, 50%, 90% { transform: translate3d(-5px, -2px, 0) rotate(-0.3deg); }
+  20%, 60% { transform: translate3d(5px, 2px, 0) rotate(0.3deg); }
+  30%, 70% { transform: translate3d(-4px, 1px, 0) rotate(-0.2deg); }
+  40%, 80% { transform: translate3d(4px, -1px, 0) rotate(0.2deg); }
+}
+
+.animate-shake {
+  animation: shake 0.7s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+}
+
+@keyframes wave-pulse {
+  0% { transform: scale(1); opacity: 0.8; }
+  100% { transform: scale(3); opacity: 0; }
+}
+
+.animate-wave-pulse {
+  animation: wave-pulse 1.8s ease-out infinite;
+}
+
+@keyframes ticker-scroll {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+.ticker-track {
+  animation: ticker-scroll 60s linear infinite;
+  will-change: transform;
+}
+
+.ticker-track:hover {
+  animation-play-state: paused;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-6px); }
+}
+
+.animate-float {
+  animation: float 4s ease-in-out infinite;
+}

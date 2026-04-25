@@ -1,0 +1,26 @@
+# Frontend
+frontend/.next/
+frontend/node_modules/
+frontend/.env.local
+frontend/.env*.local
+frontend/next-env.d.ts
+frontend/tsconfig.tsbuildinfo
+
+# Backend
+backend/*/bin/
+backend/*/obj/
+backend/*.user
+
+# Root leftovers
+node_modules/
+.next/
+tsconfig.tsbuildinfo
+.env.local
+.env*.local
+
+# Claude
+.claude/
+
+# OS
+.DS_Store
+Thumbs.db
