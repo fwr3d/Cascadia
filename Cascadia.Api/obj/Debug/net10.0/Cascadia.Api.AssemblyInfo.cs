@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Cascadia.Api")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+affef7b5b47705942e12b143993df95d110470ce")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+42e7f8a84fd7da8850802877837fc6c517018ee0")]
 [assembly: System.Reflection.AssemblyProductAttribute("Cascadia.Api")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Cascadia.Api")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

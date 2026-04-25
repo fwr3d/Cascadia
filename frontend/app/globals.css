@@ -13,18 +13,6 @@ body {
   color: #e2e8f0;
 }
 
-@keyframes shake {
-  0%, 100% { transform: translate3d(0, 0, 0) rotate(0deg); }
-  10%, 50%, 90% { transform: translate3d(-5px, -2px, 0) rotate(-0.3deg); }
-  20%, 60% { transform: translate3d(5px, 2px, 0) rotate(0.3deg); }
-  30%, 70% { transform: translate3d(-4px, 1px, 0) rotate(-0.2deg); }
-  40%, 80% { transform: translate3d(4px, -1px, 0) rotate(0.2deg); }
-}
-
-.animate-shake {
-  animation: shake 0.7s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
-}
-
 @keyframes wave-pulse {
   0% { transform: scale(1); opacity: 0.8; }
   100% { transform: scale(3); opacity: 0; }
@@ -32,6 +20,7 @@ body {
 
 .animate-wave-pulse {
   animation: wave-pulse 1.8s ease-out infinite;
+  transform-origin: center;
 }
 
 @keyframes ticker-scroll {
@@ -46,15 +35,6 @@ body {
 
 .ticker-track:hover {
   animation-play-state: paused;
-}
-
-@keyframes float {
-  0%, 100% { transform: translateY(0px); }
-  50%       { transform: translateY(-6px); }
-}
-
-.animate-float {
-  animation: float 4s ease-in-out infinite;
 }
 
 @keyframes ripple-spin {
@@ -87,12 +67,17 @@ body {
   animation: core-breathe 3.8s ease-in-out infinite;
 }
 
-.wordmark-wave {
-  display: inline-flex;
-  gap: 0.02em;
+@keyframes wave-ring-expand {
+  0%   { transform: scale(1);   opacity: 0.6; }
+  60%  { opacity: 0.25; }
+  100% { transform: scale(2.5); opacity: 0; }
 }
 
-.wordmark-wave-letter {
-  display: inline-block;
-  will-change: transform, opacity, filter;
+.animate-wave-ring {
+  transform-origin: 110px 110px;
+  animation: wave-ring-expand 2.8s cubic-bezier(0.2, 0.6, 0.4, 1) infinite;
 }
+
+.animate-wave-ring-delay-1 { animation-delay: 0s; }
+.animate-wave-ring-delay-2 { animation-delay: 0.93s; }
+.animate-wave-ring-delay-3 { animation-delay: 1.87s; }

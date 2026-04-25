@@ -115,6 +115,43 @@ public sealed class InfrastructureService
         return counties.Sum(county => county.Pop);
     }
 
+    public async Task<IReadOnlyList<AffectedCountyDto>> GetCountiesInInundationZonesAsync(
+        IReadOnlyList<CoastalInundationDto> zones,
+        CancellationToken cancellationToken)
+    {
+        if (zones.Count == 0) return [];
+
+        var counties = await EnsureCountyProfilesAsync(cancellationToken);
+
+        // County centroids sit 20-50 km inland from the coast reference points.
+        // Use a 50 km coastal influence radius so coastal counties are correctly captured.
+        const double coastalInfluenceKm = 50.0;
+        return counties
+            .Where(county => zones.Any(zone =>
+                HaversineKm(county.Lat, county.Lon, zone.Lat, zone.Lon) <= Math.Max(zone.InundationKm, coastalInfluenceKm)))
+            .OrderByDescending(county => county.Population)
+            .Select(county => new AffectedCountyDto
+            {
+                Name = county.Name,
+                State = county.State,
+                Pop = county.Population,
+                Fips = county.Fips
+            })
+            .ToList();
+    }
+
+    public int GetPopulationWithinRadius(double lat, double lon, double radiusKm)
+    {
+        if (_counties is null) return 0;
+
+        return _counties
+            .Where(county => HaversineKm(lat, lon, county.Lat, county.Lon) <= radiusKm)
+            .Sum(county => county.Population);
+    }
+
+    public Task WarmupAsync(CancellationToken cancellationToken = default) =>
+        EnsureCountyProfilesAsync(cancellationToken);
+
     public double? GetNearestCoastDistanceKm(double lat, double lon)
     {
         var coastPoints = _infrastructure.Where(item => item.Type == "port").ToList();
@@ -341,19 +378,7 @@ public sealed class InfrastructureService
         }
     }
 
-    private IReadOnlyList<InfrastructureCatalogItem> LoadInfrastructureCatalog()
-    {
-        var plants = LoadInfrastructureFile("power-plants.json", "powerPlant");
-        var hospitals = LoadInfrastructureFile("hospitals.json", "hospital");
-        var ports = LoadInfrastructureFile("ports.json", "port");
-
-        var catalog = new List<InfrastructureCatalogItem>();
-        catalog.AddRange(plants.Count > 0 ? plants : GetFallbackPowerPlants());
-        catalog.AddRange(hospitals.Count > 0 ? hospitals : GetFallbackHospitals());
-        catalog.AddRange(ports.Count > 0 ? ports : GetFallbackPorts());
-
-        return catalog;
-    }
+    private static IReadOnlyList<InfrastructureCatalogItem> LoadInfrastructureCatalog() => [];
 
     private IReadOnlyList<InfrastructureCatalogItem> LoadInfrastructureFile(string fileName, string type)
     {

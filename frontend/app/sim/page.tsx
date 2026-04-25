@@ -1,7 +1,8 @@
 'use client'
 
 import dynamic from 'next/dynamic'
-import { useState, useCallback } from 'react'
+import Link from 'next/link'
+import { useState, useCallback, useEffect, useRef } from 'react'
 import QuickScenarios from '@/components/QuickScenarios'
 import LiveTicker from '@/components/LiveTicker'
 import WaveControls from '@/components/WaveControls'
@@ -10,6 +11,8 @@ import type { Earthquake, SimulateResponse } from '@/lib/types'
 import { simulate } from '@/lib/api'
 
 const MapView = dynamic(() => import('@/components/MapView'), { ssr: false })
+
+const ANIM_DURATION_MS = 18000
 
 function formatCoord(coords: { lat: number; lon: number } | null): string {
   if (!coords) return '—°  —°'
@@ -23,6 +26,43 @@ export default function SimulatorPage() {
   const [simResponse, setSimResponse] = useState<SimulateResponse | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [cursor, setCursor] = useState<{ lat: number; lon: number } | null>(null)
+  const [animatedRadiusKm, setAnimatedRadiusKm] = useState(0)
+  const [simCompleted, setSimCompleted] = useState(false)
+  const animFrameRef = useRef<number | null>(null)
+
+  // Max radius = nearest coast distance + 200 km — wave reaches shore and stops
+  function getMaxAnimRadius(resp: SimulateResponse): number {
+    if (resp.coastalInundation.length > 0) {
+      const nearest = Math.min(...resp.coastalInundation.map(z => z.distanceFromEpicenterKm))
+      return nearest + 200
+    }
+    return resp.etaNearestCoastMin * 60 * resp.waveSpeedKmS + 200
+  }
+
+  useEffect(() => {
+    if (!simResponse) {
+      setAnimatedRadiusKm(0)
+      setSimCompleted(false)
+      return
+    }
+    const maxRadius = getMaxAnimRadius(simResponse)
+
+    const start = performance.now()
+    function tick(now: number) {
+      const progress = Math.min((now - start) / ANIM_DURATION_MS, 1)
+      setAnimatedRadiusKm(progress * maxRadius)
+      if (progress < 1) {
+        animFrameRef.current = requestAnimationFrame(tick)
+      } else {
+        setSimCompleted(true)
+      }
+    }
+    animFrameRef.current = requestAnimationFrame(tick)
+
+    return () => {
+      if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current)
+    }
+  }, [simResponse])
 
   const handleMouseMove = useCallback(
     (coords: { lat: number; lon: number } | null) => setCursor(coords),
@@ -56,8 +96,11 @@ export default function SimulatorPage() {
   }
 
   function handleClear() {
+    if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current)
     setSimResponse(null)
+    setSimCompleted(false)
     setEpicenter(null)
+    setAnimatedRadiusKm(0)
   }
 
   return (
@@ -65,7 +108,7 @@ export default function SimulatorPage() {
 
       {/* Top bar */}
       <header className="absolute inset-x-0 top-0 z-20 flex h-12 items-center justify-between border-b border-white/[0.08] bg-[#0a1628]/90 px-5 backdrop-blur-md">
-        <span className="font-mono text-sm font-bold tracking-[0.2em] text-white">CASCADIA</span>
+        <Link href="/" className="font-mono text-sm font-bold tracking-[0.2em] text-white hover:text-[#37C8DD] transition-colors">CASCADIA</Link>
         <div className="flex items-center gap-2">
           <span className="relative flex h-2 w-2">
             <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
@@ -83,7 +126,9 @@ export default function SimulatorPage() {
         <MapView
           epicenter={epicenter}
           waveRings={simResponse?.rings ?? []}
-          infraItems={simResponse?.infrastructureAtRisk ?? []}
+          coastalInundation={simResponse?.coastalInundation ?? []}
+          animatedRadiusKm={animatedRadiusKm}
+          maxRingRadiusKm={simResponse ? getMaxAnimRadius(simResponse) : 0}
           onMapClick={handleMapClick}
           onMouseMove={handleMouseMove}
         />
@@ -113,11 +158,11 @@ export default function SimulatorPage() {
         style={{
           bottom: '40px',
           right: epicenter ? '320px' : '0',
-          transform: simResponse ? 'translateY(0)' : 'translateY(100%)',
+          transform: simCompleted && simResponse ? 'translateY(0)' : 'translateY(100%)',
           transition: 'transform 200ms ease-out, right 200ms ease-out',
         }}
       >
-        <ImpactPanel response={simResponse} onClear={handleClear} />
+        <ImpactPanel response={simResponse} animatedRadiusKm={animatedRadiusKm} onClear={handleClear} />
       </div>
 
       {/* Live ticker */}

@@ -18,7 +18,7 @@ public sealed class SimulationRequestDto
     public double Magnitude { get; set; }
 
     [JsonPropertyName("depthKm")]
-    [Range(0.1, 11)]
+    [Range(0.1, 1000)]
     public double DepthKm { get; set; }
 }
 
@@ -44,6 +44,36 @@ public sealed class SimulationResponseDto
 
     [JsonPropertyName("infrastructureAtRisk")]
     public List<InfrastructureRiskDto> InfrastructureAtRisk { get; set; } = [];
+
+    [JsonPropertyName("coastalInundation")]
+    public List<CoastalInundationDto> CoastalInundation { get; set; } = [];
+}
+
+public sealed class CoastalInundationDto
+{
+    [JsonPropertyName("lat")]
+    public double Lat { get; set; }
+
+    [JsonPropertyName("lon")]
+    public double Lon { get; set; }
+
+    [JsonPropertyName("name")]
+    public string Name { get; set; } = string.Empty;
+
+    [JsonPropertyName("distanceFromEpicenterKm")]
+    public double DistanceFromEpicenterKm { get; set; }
+
+    [JsonPropertyName("inundationKm")]
+    public double InundationKm { get; set; }
+
+    [JsonPropertyName("runupM")]
+    public double RunupM { get; set; }
+
+    [JsonPropertyName("hitAtRingIndex")]
+    public int HitAtRingIndex { get; set; }
+
+    [JsonPropertyName("affectedPopulation")]
+    public int AffectedPopulation { get; set; }
 }
 
 public sealed class WaveRingDto

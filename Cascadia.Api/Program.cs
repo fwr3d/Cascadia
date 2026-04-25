@@ -31,6 +31,9 @@ if (app.Environment.IsDevelopment())
 app.UseCors("dev");
 app.MapControllers();
 
+var infra = app.Services.GetRequiredService<InfrastructureService>();
+_ = infra.WarmupAsync();
+
 app.MapGet("/api/health", () => Results.Ok(new { status = "ok" }));
 
 app.Run();

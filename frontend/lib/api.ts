@@ -1,8 +1,8 @@
 import type { Earthquake, SimulateRequest, SimulateResponse } from './types'
 import { MOCK_RESPONSE } from './mockData'
 
-const USE_MOCK = true
-const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:5000'
+const USE_MOCK = false
+const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:5055'
 
 export async function simulate(req: SimulateRequest): Promise<SimulateResponse> {
   if (USE_MOCK) {

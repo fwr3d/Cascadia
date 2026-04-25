@@ -15,17 +15,17 @@ export interface SimulateRequest {
   depthKm: number
 }
 
+export interface AffectedCounty {
+  name: string
+  state: string
+  pop: number
+  fips: string
+}
+
 export interface WaveRing {
   radiusKm: number
   etaMinutes: number
-  waveHeightM: number
-}
-
-export interface County {
-  name: string
-  state: string
-  population: number
-  distanceKm: number
+  affectedCounties: AffectedCounty[]
 }
 
 export type InfraState = 'safe' | 'warning' | 'destroyed'
@@ -40,15 +40,24 @@ export interface InfraItem {
   gridCoverageRadiusKm: number
 }
 
+export interface CoastalInundation {
+  lat: number
+  lon: number
+  name: string
+  distanceFromEpicenterKm: number
+  inundationKm: number
+  runupM: number
+  hitAtRingIndex: number
+  affectedPopulation: number
+}
+
 export interface SimulateResponse {
-  magnitude: number
-  epicenterLat: number
-  epicenterLon: number
-  depthKm: number
-  energyJoules: number
+  waveSpeedKmS: number
+  energyJoules: string
+  etaNearestCoastMin: number
+  estimatedRunupM: number
+  affectedPopulation: number
   rings: WaveRing[]
-  countiesAtRisk: County[]
   infrastructureAtRisk: InfraItem[]
-  totalPopulationAtRisk: number
-  maxWaveHeightM: number
+  coastalInundation: CoastalInundation[]
 }
