@@ -55,15 +55,11 @@ export default function LandingPage() {
             {WORDMARK.join('')}
           </h1>
           <p className="font-mono text-xs tracking-[0.2em] text-[#37C8DD] sm:text-sm">
-            PACIFIC TSUNAMI SIMULATION SYSTEM
+            PHYSICS-BASED TSUNAMI SIMULATION SYSTEM
           </p>
         </div>
 
-        <p className="max-w-xl text-sm leading-relaxed text-slate-400 sm:text-base">
-          The Cascadia Subduction Zone stretches 1,000 km off the Pacific Coast.
-          When it ruptures — and it will — the resulting tsunami will reach coastal communities
-          in under 15 minutes. <span className="text-slate-200">This simulator models exactly that.</span>
-        </p>
+
 
         <div className="flex items-center gap-8 border-y border-white/[0.06] py-5">
           {STATS.map((s) => (
@@ -84,12 +80,7 @@ export default function LandingPage() {
           </Link>
         </div>
 
-        <div className="flex items-center gap-2 rounded-lg border border-[#E24B4A]/20 bg-[#E24B4A]/5 px-4 py-2">
-          <AlertTriangle size={12} className="shrink-0 text-[#E24B4A]" />
-          <span className="font-mono text-[10px] tracking-wide text-[#E24B4A]/80">
-            USGS estimates a 37% probability of M8.0+ Cascadia rupture within 50 years
-          </span>
-        </div>
+
       </section>
     </main>
   )
