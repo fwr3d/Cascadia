@@ -2,19 +2,33 @@ import type { Earthquake, SimulateRequest, SimulateResponse } from './types'
 import { MOCK_RESPONSE } from './mockData'
 
 const USE_MOCK = false
-const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:5055'
+const API_BASE = process.env.NEXT_PUBLIC_API_URL?.trim().replace(/\/+$/, '') ?? ''
 
 export async function simulate(req: SimulateRequest): Promise<SimulateResponse> {
   if (USE_MOCK) {
     await new Promise((r) => setTimeout(r, 800))
     return MOCK_RESPONSE
   }
-  const res = await fetch(`${API_BASE}/api/simulate`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(req),
-  })
-  if (!res.ok) throw new Error(`Simulate failed: ${res.status}`)
+
+  if (!API_BASE) {
+    throw new Error('Simulation API is not configured. Set NEXT_PUBLIC_API_URL in Vercel.')
+  }
+
+  let res: Response
+  try {
+    res = await fetch(`${API_BASE}/api/simulate`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(req),
+    })
+  } catch {
+    throw new Error(`Could not reach the simulation API at ${API_BASE}.`)
+  }
+
+  if (!res.ok) {
+    throw new Error(`Simulation failed (${res.status}).`)
+  }
+
   return res.json()
 }
 

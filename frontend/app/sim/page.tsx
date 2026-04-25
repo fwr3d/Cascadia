@@ -25,6 +25,7 @@ export default function SimulatorPage() {
   const [epicenter, setEpicenter] = useState<{ lat: number; lon: number } | null>(null)
   const [simResponse, setSimResponse] = useState<SimulateResponse | null>(null)
   const [isLoading, setIsLoading] = useState(false)
+  const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const [cursor, setCursor] = useState<{ lat: number; lon: number } | null>(null)
   const [animatedRadiusKm, setAnimatedRadiusKm] = useState(0)
   const [simCompleted, setSimCompleted] = useState(false)
@@ -72,16 +73,19 @@ export default function SimulatorPage() {
   function handleMapClick(lat: number, lon: number) {
     setEpicenter({ lat, lon })
     setSimResponse(null)
+    setErrorMessage(null)
   }
 
   function handleScenarioSelect(eq: Earthquake) {
     setEpicenter({ lat: eq.lat, lon: eq.lon })
     setSimResponse(null)
+    setErrorMessage(null)
   }
 
   async function handleSimulate(magnitude: number, depthKm: number) {
     if (!epicenter) return
     setIsLoading(true)
+    setErrorMessage(null)
     try {
       const result = await simulate({
         epicenterLat: epicenter.lat,
@@ -90,6 +94,11 @@ export default function SimulatorPage() {
         depthKm,
       })
       setSimResponse(result)
+    } catch (error) {
+      setSimResponse(null)
+      setSimCompleted(false)
+      setAnimatedRadiusKm(0)
+      setErrorMessage(error instanceof Error ? error.message : 'Simulation failed.')
     } finally {
       setIsLoading(false)
     }
@@ -101,6 +110,7 @@ export default function SimulatorPage() {
     setSimCompleted(false)
     setEpicenter(null)
     setAnimatedRadiusKm(0)
+    setErrorMessage(null)
   }
 
   return (
@@ -149,6 +159,7 @@ export default function SimulatorPage() {
           onSimulate={handleSimulate}
           onCancel={handleClear}
           isLoading={isLoading}
+          errorMessage={errorMessage}
         />
       </div>
 

@@ -8,9 +8,10 @@ interface Props {
   onSimulate: (magnitude: number, depthKm: number) => void
   onCancel: () => void
   isLoading: boolean
+  errorMessage?: string | null
 }
 
-export default function WaveControls({ epicenter, onSimulate, onCancel, isLoading }: Props) {
+export default function WaveControls({ epicenter, onSimulate, onCancel, isLoading, errorMessage }: Props) {
   const [magnitude, setMagnitude] = useState(8.5)
   const [depth, setDepth] = useState(30)
 
@@ -29,6 +30,12 @@ export default function WaveControls({ epicenter, onSimulate, onCancel, isLoadin
       </div>
 
       <div className="flex flex-1 flex-col gap-6 overflow-y-auto p-4">
+        {errorMessage ? (
+          <div className="rounded-lg border border-red-400/25 bg-red-500/10 px-3 py-2 text-xs text-red-200">
+            {errorMessage}
+          </div>
+        ) : null}
+
         <div>
           <p className="mb-0.5 font-mono text-[10px] tracking-widest text-slate-500">EPICENTER</p>
           <p className="font-mono text-xs text-[#37C8DD]">{lat}</p>
