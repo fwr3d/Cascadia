@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "gsap": "^3.15.0",
     "lucide-react": "^0.468.0",
     "mapbox-gl": "^3.9.4",
     "next": "15.1.6",

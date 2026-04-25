@@ -32,7 +32,7 @@ export type InfraState = 'safe' | 'warning' | 'destroyed'
 
 export interface InfraItem {
   name: string
-  type: 'hospital' | 'power' | 'port' | 'nuclear'
+  type: 'hospital' | 'power' | 'port'
   lat: number
   lon: number
   distanceKm: number
