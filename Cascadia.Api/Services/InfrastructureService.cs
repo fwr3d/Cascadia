@@ -368,19 +368,37 @@ public sealed class InfrastructureService
             using var stream = File.OpenRead(path);
             using var document = JsonDocument.Parse(stream);
 
-            if (document.RootElement.ValueKind != JsonValueKind.Array)
-            {
-                return [];
-            }
-
             var items = new List<InfrastructureCatalogItem>();
-            foreach (var element in document.RootElement.EnumerateArray())
+            foreach (var element in EnumerateJsonItems(document.RootElement))
             {
                 var name = ReadString(element, "name", "facility_name", "plant_name", "port_name");
                 var lat = ReadDouble(element, "lat", "latitude", "y");
                 var lon = ReadDouble(element, "lon", "longitude", "x");
                 var capacityMw = ReadDouble(element, "capacityMw", "capacity_mw", "total_mw");
                 var beds = ReadInt(element, "beds", "bed_count", "staffed_beds");
+
+                if ((lat is null || lon is null) && TryGetNestedObject(element, out var nested))
+                {
+                    name ??= ReadString(nested, "name", "facility_name", "plant_name", "port_name");
+                    capacityMw ??= ReadDouble(nested, "capacityMw", "capacity_mw", "total_mw");
+                    beds ??= ReadInt(nested, "beds", "bed_count", "staffed_beds");
+                    lat ??= ReadDouble(nested, "lat", "latitude", "y");
+                    lon ??= ReadDouble(nested, "lon", "longitude", "x");
+                }
+
+                if ((lat is null || lon is null) && TryGetProperty(element, "geometry", out var geometry))
+                {
+                    if (TryGetProperty(geometry, "coordinates", out var coordinates) &&
+                        coordinates.ValueKind == JsonValueKind.Array &&
+                        coordinates.GetArrayLength() >= 2)
+                    {
+                        lon ??= coordinates[0].TryGetDouble(out var coordLon) ? coordLon : null;
+                        lat ??= coordinates[1].TryGetDouble(out var coordLat) ? coordLat : null;
+                    }
+
+                    lat ??= ReadDouble(geometry, "lat", "latitude", "y");
+                    lon ??= ReadDouble(geometry, "lon", "longitude", "x");
+                }
 
                 if (string.IsNullOrWhiteSpace(name) || lat is null || lon is null)
                 {
@@ -404,6 +422,45 @@ public sealed class InfrastructureService
             _logger.LogWarning(ex, "Failed to load infrastructure file {FileName}. Using fallback data instead.", fileName);
             return [];
         }
+    }
+
+    private static IEnumerable<JsonElement> EnumerateJsonItems(JsonElement root)
+    {
+        if (root.ValueKind == JsonValueKind.Array)
+        {
+            foreach (var element in root.EnumerateArray())
+            {
+                yield return element;
+            }
+
+            yield break;
+        }
+
+        if (root.ValueKind == JsonValueKind.Object &&
+            TryGetProperty(root, "features", out var features) &&
+            features.ValueKind == JsonValueKind.Array)
+        {
+            foreach (var element in features.EnumerateArray())
+            {
+                yield return element;
+            }
+        }
+    }
+
+    private static bool TryGetNestedObject(JsonElement element, out JsonElement nested)
+    {
+        if (TryGetProperty(element, "properties", out nested) && nested.ValueKind == JsonValueKind.Object)
+        {
+            return true;
+        }
+
+        if (TryGetProperty(element, "attributes", out nested) && nested.ValueKind == JsonValueKind.Object)
+        {
+            return true;
+        }
+
+        nested = default;
+        return false;
     }
 
     private static InfrastructureItemDto ToInfrastructureItemDto(InfrastructureCatalogItem item, double distanceKm)
