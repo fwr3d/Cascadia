@@ -28,6 +28,26 @@ function Divider() {
 export default function ImpactPanel({ response, animatedRadiusKm, onClear }: Props) {
   const [copied, setCopied] = useState(false)
 
+  const simTimeStr = useMemo(() => {
+    if (!response || animatedRadiusKm === 0) return 'T+00:00'
+    const simSeconds = animatedRadiusKm / response.waveSpeedKmS
+    const mins = Math.floor(simSeconds / 60)
+    const secs = Math.floor(simSeconds % 60)
+    return `T+${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`
+  }, [animatedRadiusKm, response])
+
+  const livePop = useMemo(() => {
+    if (!response || animatedRadiusKm === 0) return 0
+    const passed = response.rings.filter(r => r.radiusKm > 0 && r.radiusKm <= animatedRadiusKm)
+    return passed.at(-1)?.affectedCounties.reduce((s, c) => s + c.pop, 0) ?? 0
+  }, [animatedRadiusKm, response])
+
+  const liveCounties = useMemo(() => {
+    if (!response || animatedRadiusKm === 0) return 0
+    const passed = response.rings.filter(r => r.radiusKm > 0 && r.radiusKm <= animatedRadiusKm)
+    return passed.at(-1)?.affectedCounties.length ?? 0
+  }, [animatedRadiusKm, response])
+
   if (!response) return null
 
   function handleShare() {
@@ -36,27 +56,6 @@ export default function ImpactPanel({ response, animatedRadiusKm, onClear }: Pro
       setTimeout(() => setCopied(false), 2000)
     })
   }
-
-  const simTimeStr = useMemo(() => {
-    if (animatedRadiusKm === 0) return 'T+00:00'
-    const simSeconds = animatedRadiusKm / response.waveSpeedKmS
-    const mins = Math.floor(simSeconds / 60)
-    const secs = Math.floor(simSeconds % 60)
-    return `T+${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`
-  }, [animatedRadiusKm, response.waveSpeedKmS])
-
-  const livePop = useMemo(() => {
-    if (animatedRadiusKm === 0) return 0
-    const passed = response.rings.filter(r => r.radiusKm > 0 && r.radiusKm <= animatedRadiusKm)
-    const last = passed.at(-1)
-    return last?.affectedCounties.reduce((s, c) => s + c.pop, 0) ?? 0
-  }, [animatedRadiusKm, response.rings])
-
-  const liveCounties = useMemo(() => {
-    if (animatedRadiusKm === 0) return 0
-    const passed = response.rings.filter(r => r.radiusKm > 0 && r.radiusKm <= animatedRadiusKm)
-    return passed.at(-1)?.affectedCounties.length ?? 0
-  }, [animatedRadiusKm, response.rings])
 
   const totalCounties = response.rings.at(-1)?.affectedCounties.length ?? 0
   const runup = `${response.estimatedRunupM.toFixed(1)} m`
