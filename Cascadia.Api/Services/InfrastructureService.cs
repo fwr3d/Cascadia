@@ -378,7 +378,19 @@ public sealed class InfrastructureService
         }
     }
 
-    private static IReadOnlyList<InfrastructureCatalogItem> LoadInfrastructureCatalog() => [];
+    private IReadOnlyList<InfrastructureCatalogItem> LoadInfrastructureCatalog()
+    {
+        var hospitals = LoadInfrastructureFile("hospitals.json", "hospital");
+        var powerPlants = LoadInfrastructureFile("power-plants.json", "powerPlant");
+        var ports = LoadInfrastructureFile("ports.json", "port");
+
+        return
+        [
+            ..(hospitals.Count > 0 ? hospitals : GetFallbackHospitals()),
+            ..(powerPlants.Count > 0 ? powerPlants : GetFallbackPowerPlants()),
+            ..(ports.Count > 0 ? ports : GetFallbackPorts()),
+        ];
+    }
 
     private IReadOnlyList<InfrastructureCatalogItem> LoadInfrastructureFile(string fileName, string type)
     {
