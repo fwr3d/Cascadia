@@ -11,10 +11,10 @@ public sealed class SimulationService
     // Mean Pacific slope for inundation: ~0.5% (0.005) — flat coastal plains WA/OR/CA
     private const double CoastalSlopeFraction = 0.005;
 
-    // Pacific Coast reference points: lat, lon, name
-    // Defines land/ocean boundary from SE Alaska to Baja + Hawaii
-    private static readonly (double Lat, double Lon, string Name)[] PacificCoastPoints =
+    // Coast reference points: lat, lon, name — Pacific, Atlantic, Gulf, Caribbean
+    private static readonly (double Lat, double Lon, string Name)[] CoastPoints =
     [
+        // Pacific — SE Alaska to Baja + Hawaii
         (54.8,  -131.5, "Ketchikan, AK"),
         (56.5,  -132.9, "Petersburg, AK"),
         (57.1,  -135.3, "Sitka, AK"),
@@ -69,6 +69,69 @@ public sealed class SimulationService
         (21.3,  -157.9, "Honolulu, HI"),
         (20.9,  -156.4, "Maui, HI"),
         (19.0,  -155.7, "Big Island, HI"),
+
+        // Atlantic — Maine to Florida East
+        (47.1,  -67.8,  "Eastport, ME"),
+        (44.6,  -67.0,  "Machias, ME"),
+        (44.4,  -68.2,  "Bar Harbor, ME"),
+        (43.7,  -70.2,  "Portland, ME"),
+        (43.1,  -70.8,  "Portsmouth, NH"),
+        (42.9,  -70.8,  "Newburyport, MA"),
+        (42.4,  -71.0,  "Boston, MA"),
+        (41.9,  -70.0,  "Cape Cod, MA"),
+        (41.5,  -71.3,  "Newport, RI"),
+        (41.3,  -72.1,  "New Haven, CT"),
+        (41.0,  -72.9,  "Long Island East, NY"),
+        (40.7,  -73.9,  "New York City, NY"),
+        (40.4,  -74.0,  "Sandy Hook, NJ"),
+        (39.4,  -74.4,  "Atlantic City, NJ"),
+        (38.9,  -74.9,  "Cape May, NJ"),
+        (38.8,  -75.1,  "Lewes, DE"),
+        (38.3,  -75.1,  "Ocean City, MD"),
+        (37.9,  -75.4,  "Chincoteague, VA"),
+        (37.0,  -76.0,  "Virginia Beach, VA"),
+        (36.9,  -76.3,  "Norfolk, VA"),
+        (35.9,  -75.6,  "Outer Banks, NC"),
+        (34.7,  -76.7,  "Cape Lookout, NC"),
+        (34.2,  -77.8,  "Wilmington, NC"),
+        (33.9,  -78.0,  "Myrtle Beach, SC"),
+        (32.8,  -79.9,  "Charleston, SC"),
+        (32.1,  -80.9,  "Hilton Head, SC"),
+        (31.1,  -81.4,  "Brunswick, GA"),
+        (30.4,  -81.4,  "Jacksonville, FL"),
+        (29.1,  -80.6,  "Daytona Beach, FL"),
+        (28.4,  -80.6,  "Cape Canaveral, FL"),
+        (27.7,  -80.4,  "Vero Beach, FL"),
+        (26.7,  -80.1,  "West Palm Beach, FL"),
+        (25.8,  -80.1,  "Miami, FL"),
+        (25.2,  -80.3,  "Homestead, FL"),
+        (24.6,  -81.8,  "Key West, FL"),
+
+        // Gulf of Mexico — Florida West to Texas
+        (25.5,  -81.4,  "Cape Sable, FL"),
+        (26.1,  -81.8,  "Naples, FL"),
+        (26.9,  -82.4,  "Fort Myers, FL"),
+        (27.5,  -82.7,  "Sarasota, FL"),
+        (27.9,  -82.8,  "Tampa Bay, FL"),
+        (28.9,  -82.8,  "Crystal River, FL"),
+        (29.8,  -84.4,  "Apalachee Bay, FL"),
+        (30.2,  -85.9,  "Panama City, FL"),
+        (30.4,  -87.2,  "Pensacola, FL"),
+        (30.4,  -88.0,  "Mobile Bay, AL"),
+        (30.4,  -89.0,  "Gulfport, MS"),
+        (29.9,  -89.9,  "New Orleans, LA"),
+        (29.7,  -91.2,  "Morgan City, LA"),
+        (29.7,  -93.9,  "Lake Charles, LA"),
+        (29.8,  -94.0,  "Beaumont, TX"),
+        (29.7,  -94.8,  "Galveston, TX"),
+        (28.8,  -95.8,  "Freeport, TX"),
+        (28.0,  -97.1,  "Corpus Christi, TX"),
+        (26.1,  -97.2,  "Brownsville, TX"),
+
+        // Puerto Rico & US Virgin Islands
+        (18.5,  -66.1,  "San Juan, PR"),
+        (18.0,  -67.1,  "Mayaguez, PR"),
+        (17.7,  -64.7,  "St. Thomas, USVI"),
     ];
 
     private readonly InfrastructureService _infrastructureService;
@@ -162,7 +225,7 @@ public sealed class SimulationService
 
         var result = new List<CoastalInundationDto>();
 
-        foreach (var (lat, lon, name) in PacificCoastPoints)
+        foreach (var (lat, lon, name) in CoastPoints)
         {
             var distKm = InfrastructureService.HaversineKm(epicenterLat, epicenterLon, lat, lon);
             if (distKm > maxRadius || distKm < 1) continue;
