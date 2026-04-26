@@ -2,7 +2,8 @@
 
 import dynamic from 'next/dynamic'
 import Link from 'next/link'
-import { useState, useCallback, useEffect, useRef } from 'react'
+import { useState, useCallback, useEffect, useRef, Suspense } from 'react'
+import { useSearchParams, useRouter } from 'next/navigation'
 import QuickScenarios from '@/components/QuickScenarios'
 import LiveTicker from '@/components/LiveTicker'
 import WaveControls from '@/components/WaveControls'
@@ -21,8 +22,21 @@ function formatCoord(coords: { lat: number; lon: number } | null): string {
   return `${lat}  ${lon}`
 }
 
-export default function SimulatorPage() {
-  const [epicenter, setEpicenter] = useState<{ lat: number; lon: number } | null>(null)
+function SimulatorPageInner() {
+  const searchParams = useSearchParams()
+  const router = useRouter()
+
+  const urlLat  = parseFloat(searchParams.get('lat')   ?? '')
+  const urlLon  = parseFloat(searchParams.get('lon')   ?? '')
+  const urlMag  = parseFloat(searchParams.get('mag')   ?? '')
+  const urlDepth= parseFloat(searchParams.get('depth') ?? '')
+  const hasUrlParams = [urlLat, urlLon, urlMag, urlDepth].every(n => !isNaN(n))
+
+  const [epicenter, setEpicenter] = useState<{ lat: number; lon: number } | null>(
+    hasUrlParams ? { lat: urlLat, lon: urlLon } : null
+  )
+  const [magnitude, setMagnitude] = useState(hasUrlParams ? urlMag  : 8.5)
+  const [depth,     setDepth]     = useState(hasUrlParams ? urlDepth: 30)
   const [simResponse, setSimResponse] = useState<SimulateResponse | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
@@ -30,6 +44,7 @@ export default function SimulatorPage() {
   const [animatedRadiusKm, setAnimatedRadiusKm] = useState(0)
   const [simCompleted, setSimCompleted] = useState(false)
   const animFrameRef = useRef<number | null>(null)
+  const autoRanRef = useRef(false)
 
   // Max radius = nearest coast distance + 200 km — wave reaches shore and stops
   function getMaxAnimRadius(resp: SimulateResponse): number {
@@ -94,6 +109,10 @@ export default function SimulatorPage() {
         depthKm,
       })
       setSimResponse(result)
+      router.replace(
+        `/sim?lat=${epicenter.lat}&lon=${epicenter.lon}&mag=${magnitude}&depth=${depthKm}`,
+        { scroll: false }
+      )
     } catch (error) {
       setSimResponse(null)
       setSimCompleted(false)
@@ -103,6 +122,14 @@ export default function SimulatorPage() {
       setIsLoading(false)
     }
   }
+
+  useEffect(() => {
+    if (hasUrlParams && !autoRanRef.current) {
+      autoRanRef.current = true
+      handleSimulate(magnitude, depth)
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   function handleClear() {
     if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current)
@@ -156,6 +183,10 @@ export default function SimulatorPage() {
       >
         <WaveControls
           epicenter={epicenter}
+          magnitude={magnitude}
+          depth={depth}
+          onMagnitudeChange={setMagnitude}
+          onDepthChange={setDepth}
           onSimulate={handleSimulate}
           onCancel={handleClear}
           isLoading={isLoading}
@@ -181,5 +212,13 @@ export default function SimulatorPage() {
         <LiveTicker onSelect={handleScenarioSelect} />
       </div>
     </div>
+  )
+}
+
+export default function SimulatorPage() {
+  return (
+    <Suspense>
+      <SimulatorPageInner />
+    </Suspense>
   )
 }

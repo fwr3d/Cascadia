@@ -1,7 +1,7 @@
 'use client'
 
-import { X } from 'lucide-react'
-import { useMemo } from 'react'
+import { X, Share2 } from 'lucide-react'
+import { useMemo, useState } from 'react'
 import type { SimulateResponse } from '@/lib/types'
 
 interface Props {
@@ -26,7 +26,16 @@ function Divider() {
 }
 
 export default function ImpactPanel({ response, animatedRadiusKm, onClear }: Props) {
+  const [copied, setCopied] = useState(false)
+
   if (!response) return null
+
+  function handleShare() {
+    navigator.clipboard.writeText(window.location.href).then(() => {
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    })
+  }
 
   const simTimeStr = useMemo(() => {
     if (animatedRadiusKm === 0) return 'T+00:00'
@@ -68,6 +77,14 @@ export default function ImpactPanel({ response, animatedRadiusKm, onClear }: Pro
         </div>
         <div className="flex items-center gap-4">
           <span className="font-mono text-sm font-bold tabular-nums text-[#37C8DD]">{simTimeStr}</span>
+          <button
+            onClick={handleShare}
+            className="flex items-center gap-1 font-mono text-[9px] tracking-widest text-slate-400 hover:text-white transition-colors"
+            title="Copy share link"
+          >
+            <Share2 size={11} />
+            {copied ? 'COPIED' : 'SHARE'}
+          </button>
           <button onClick={onClear} className="text-slate-500 hover:text-white">
             <X size={12} />
           </button>

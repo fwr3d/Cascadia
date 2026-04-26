@@ -1,19 +1,20 @@
 'use client'
 
-import { useState } from 'react'
 import { X, Zap } from 'lucide-react'
 
 interface Props {
   epicenter: { lat: number; lon: number } | null
+  magnitude: number
+  depth: number
+  onMagnitudeChange: (v: number) => void
+  onDepthChange: (v: number) => void
   onSimulate: (magnitude: number, depthKm: number) => void
   onCancel: () => void
   isLoading: boolean
   errorMessage?: string | null
 }
 
-export default function WaveControls({ epicenter, onSimulate, onCancel, isLoading, errorMessage }: Props) {
-  const [magnitude, setMagnitude] = useState(8.5)
-  const [depth, setDepth] = useState(30)
+export default function WaveControls({ epicenter, magnitude, depth, onMagnitudeChange, onDepthChange, onSimulate, onCancel, isLoading, errorMessage }: Props) {
 
   if (!epicenter) return null
 
@@ -49,7 +50,7 @@ export default function WaveControls({ epicenter, onSimulate, onCancel, isLoadin
           </div>
           <input
             type="range" min={5} max={9.5} step={0.1} value={magnitude}
-            onChange={(e) => setMagnitude(Number(e.target.value))}
+            onChange={(e) => onMagnitudeChange(Number(e.target.value))}
             className="w-full accent-[#37C8DD]"
           />
           <div className="mt-1 flex justify-between font-mono text-[9px] text-slate-600">
@@ -64,7 +65,7 @@ export default function WaveControls({ epicenter, onSimulate, onCancel, isLoadin
           </div>
           <input
             type="range" min={5} max={100} step={5} value={depth}
-            onChange={(e) => setDepth(Number(e.target.value))}
+            onChange={(e) => onDepthChange(Number(e.target.value))}
             className="w-full accent-[#37C8DD]"
           />
           <div className="mt-1 flex justify-between font-mono text-[9px] text-slate-600">
