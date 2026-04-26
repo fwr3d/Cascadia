@@ -123,10 +123,10 @@ public sealed class InfrastructureService
 
         var counties = await EnsureCountyProfilesAsync(cancellationToken);
 
-        // County centroids sit ~20 km inland from the coast reference points.
-        // Add a fixed offset so coastal counties are reachable, then let inundationKm
-        // extend further inland for larger events — this makes magnitude matter.
-        const double centroidOffsetKm = 20.0;
+        // WA/OR/CA coastal county centroids sit 25-55 km inland from the shoreline.
+        // Base offset of 50 km ensures coastal counties are reachable; inundationKm
+        // extends the radius further for larger events so magnitude still matters.
+        const double centroidOffsetKm = 50.0;
         return counties
             .Where(county => zones.Any(zone =>
                 HaversineKm(county.Lat, county.Lon, zone.Lat, zone.Lon) <= zone.InundationKm + centroidOffsetKm))
@@ -145,7 +145,7 @@ public sealed class InfrastructureService
     {
         if (_counties is null) return 0;
 
-        const double centroidOffsetKm = 20.0;
+        const double centroidOffsetKm = 50.0;
         return _counties
             .Where(county => HaversineKm(lat, lon, county.Lat, county.Lon) <= radiusKm + centroidOffsetKm)
             .Sum(county => county.Population);

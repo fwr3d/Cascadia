@@ -239,7 +239,11 @@ public sealed class SimulationService
             var localRunupM = firstRingRadius > 0
                 ? estimatedRunupM * Math.Sqrt(firstRingRadius / distKm)
                 : estimatedRunupM;
-            localRunupM = Math.Max(0.1, localRunupM);
+
+            // Skip negligible waves — 0.5m is the international advisory threshold
+            if (localRunupM < 0.5) continue;
+
+            localRunupM = Math.Max(0.5, localRunupM);
 
             // Inundation distance: d = runup / (slope * 1000 m/km)
             // Using mean Pacific coastal slope 0.5% — conservative for flat WA/OR plains
